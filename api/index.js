@@ -5,6 +5,7 @@ const app = express()
 const port = process.env.SERVER_PORT || 8080
 const router = express.Router()
 const db = require('./db');
+const { Op } = require('sequelize');
 
 const controller = require('./db/controller.js');
 
@@ -21,9 +22,15 @@ app.use(express.json());
 app.use('/', router);
 
 // defines a route handler for a GET request to the '/get-user-places' endpoint
-router.get('/get-user-places', cors(corsOptions), async (req, res) => {
+router.post('/get-user-places', cors(corsOptions), async (req, res) => {
+  const { user_id } = req.body;
   try {
-    res.send('You successfully completed a GET request to the /get-user-places endpoint');
+    const userPlaces = await UserPlace.findAll({where: { user_id }})
+    const placeIds = userPlaces.map(userPlace => userPlace.place_id);
+    const places = await Place.findAll({where: { id: {
+      [Op.in]: placeIds
+    }}})
+    res.send(places);
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: 'Failed to retrieve data from the GET request', error: error.message });

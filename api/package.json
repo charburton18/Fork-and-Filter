@@ -1,0 +1,15 @@
+{
+    "name": "fork-and-filter-api",
+    "version": "1.0.0",
+    "description": "Backend API for fork-and-filter",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"    
+    },
+    "license": "MIT",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2"
+    }
+}

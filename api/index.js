@@ -7,7 +7,6 @@ const router = express.Router()
 const db = require('./db');
 
 const controller = require('./db/controller.js');
-const { postUser } = controller;
 
 const {User, Place, UserPlace} = require('./db/models.js');
 

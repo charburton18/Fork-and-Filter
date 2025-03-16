@@ -6,6 +6,8 @@ const port = process.env.SERVER_PORT || 8080
 const router = express.Router()
 const db = require('./db');
 
+const controller = require('./db/controller.js');
+
 // enables CORS on the entire server
 const corsOptions = {
   origin: ['http://localhost:5173']

@@ -7,12 +7,16 @@ const router = express.Router()
 const db = require('./db');
 
 const controller = require('./db/controller.js');
+const { postUser } = controller;
+
+const {User, Place, UserPlace} = require('./db/models.js');
 
 // enables CORS on the entire server
 const corsOptions = {
   origin: ['http://localhost:5173']
 }
 app.use(cors(corsOptions));
+app.use(express.json());
 
 // uses middleware on the '/' route
 app.use('/', router);
@@ -30,12 +34,23 @@ router.get('/get-user-places', cors(corsOptions), async (req, res) => {
 // defines a route handler for a POST request to the '/create-new-user' endpoint
 router.post('/create-new-user', cors(corsOptions), async (req, res) => {
   try {
-    res.json('You successfully completed a POST request to the /create-new-user endpoint');
+    const { username, password, email } = req.body
+    const existingUser = await User.findOne({where: { username, password, email }});
+
+    if (existingUser) {
+      res.status(400).send({ message: 'User already exists' });
+    }
+
+    const newUser = await User.create(req.body);
+    return res.status(201).json(newUser);
+
   } catch (error) {
-    console.error(error);
     res.status(500).send({ message: 'Failed to retrieve data from the POST request', error: error.message });
+    console.error(error);
   }
+  
 })
+
 // defines a route handler for a POST request to the '/search-places' endpoint
 router.post('/search-places', cors(corsOptions), async (req, res) => {
   try {

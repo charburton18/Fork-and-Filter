@@ -4,6 +4,7 @@ const cors = require('cors')
 const app = express()
 const port = process.env.SERVER_PORT || 8080
 const router = express.Router()
+const db = require('./db');
 
 // enables CORS on the entire server
 const corsOptions = {
@@ -32,6 +33,10 @@ router.post('/', cors(corsOptions), async (req, res) => {
     console.error(error);
     res.status(500).send({ message: 'Failed to retrieve data from the POST request', error: error.message });
   }
+})
+
+app.on('close', () => {
+  db.close();
 })
 
 // starts the server, makes the server listen for incoming requests on the specified port

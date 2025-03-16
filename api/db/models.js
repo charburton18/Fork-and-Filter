@@ -1,126 +1,128 @@
-const Sequelize = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('./index.js')
 
-const User = sequelize.define('user', {
-    id: {
-      type: Sequelize.BIGINT, // Sequelize uses BIGINT for large integers like bigserial
-      primaryKey: true,
+const User = sequelize.define('User', {
+  id: {
+      type: DataTypes.BIGINT,
       autoIncrement: true,
-    },
-    email: {
-      type: Sequelize.TEXT,
+      primaryKey: true
+  },
+  email: {
+      type: DataTypes.TEXT,
       allowNull: false,
-      unique: true, // Ensures the email field is unique
-    },
-    username: {
-      type: Sequelize.TEXT,
+      unique: true
+  },
+  username: {
+      type: DataTypes.TEXT,
       allowNull: false,
-      unique: true, // Ensures the username field is unique
-    },
-    password: {
-      type: Sequelize.TEXT,
+      unique: true
+  },
+  password: {
+      type: DataTypes.TEXT,
+      allowNull: false
+  },
+  date_created: {
+      type: DataTypes.DATE,
       allowNull: false,
-    },
-    date_created: {
-      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+  },
+  date_updated: {
+      type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: Sequelize.NOW,
-    },
-    date_updated: {
-      type: Sequelize.DATE,
-      allowNull: false,
-      defaultValue: Sequelize.NOW,
-    },
-    date_archived: {
-      type: Sequelize.DATE,
-      allowNull: true,
-    },
-  }, {
-    tableName: 'user', // Specifies the table name
-    timestamps: false, // Since we manually define `date_created` and `date_updated`
-  });
+      defaultValue: Sequelize.NOW
+  },
+  date_archived: {
+      type: DataTypes.DATE,
+      allowNull: true
+  }
+}, {
+  tableName: 'user',
+  timestamps: false
+});
 
-const Business = sequelize.define('business', {
-    id: {
-      type: Sequelize.BIGINT, // BIGINT for the primary key
-      primaryKey: true,
-      autoIncrement: true, // Auto increment for the id field
-    },
-    businesses_id: {
-      type: Sequelize.TEXT,
+const Place = sequelize.define('Place', {
+  id: {
+      type: DataTypes.BIGINT,
+      autoIncrement: true,
+      primaryKey: true
+  },
+  place_id: {
+      type: DataTypes.TEXT,
+      allowNull: false
+  },
+  name: {
+      type: DataTypes.TEXT,
+      allowNull: false
+  },
+  rating: {
+      type: DataTypes.DECIMAL(2, 1),
+      allowNull: false
+  },
+  url: {
+      type: DataTypes.TEXT,
+      allowNull: false
+  },
+  image_url: {
+      type: DataTypes.TEXT,
+      allowNull: false
+  },
+  address: {
+      type: DataTypes.TEXT,
+      allowNull: false
+  },
+  price: {
+      type: DataTypes.TEXT,
+      allowNull: false
+  },
+  categories: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false
+  },
+  date_created: {
+      type: DataTypes.DATE,
       allowNull: false,
-    },
-    businesses_name: {
-      type: Sequelize.TEXT,
+      defaultValue: Sequelize.NOW
+  },
+  date_updated: {
+      type: DataTypes.DATE,
       allowNull: false,
-    },
-    businesses_rating: {
-      type: Sequelize.DECIMAL(8, 2),
-      allowNull: false,
-    },
-    url: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
-    image_url: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
-    location_address1: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
-    location_city: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
-    location_state: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
-    location_country: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
-    location_zip_code: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
-    price: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
-    categories_title: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
-    date_created: {
-      type: Sequelize.DATE,
-      allowNull: false,
-      defaultValue: Sequelize.NOW,
-    },
-    date_updated: {
-      type: Sequelize.DATE,
-      allowNull: false,
-      defaultValue: Sequelize.NOW,
-    },
-    date_archived: {
-      type: Sequelize.DATE,
-      allowNull: true,
-    },
-  }, {
-    tableName: 'business', // Specifies the table name
-    timestamps: false, // Since we manually define `date_created` and `date_updated`
-  });
+      defaultValue: Sequelize.NOW
+  },
+  date_archived: {
+      type: DataTypes.DATE,
+      allowNull: true
+  }
+}, {
+  tableName: 'place',
+  timestamps: false
+});
 
-  // Foreign key constraint linking Business to User
-Business.associate = () => {
-    Business.belongsTo(User, {
-      foreignKey: 'id',
-      as: 'user',
-    });
-  };
+const UserPlace = sequelize.define('UserPlace', {
+  user_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+          model: User,
+          key: 'id'
+      }
+  },
+  place_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+          model: Place,
+          key: 'id'
+      }
+  }
+}, {
+  tableName: 'user_place',
+  timestamps: false
+});
 
+// Associations
+User.belongsToMany(Place, { through: UserPlace, foreignKey: 'user_id' });
+Place.belongsToMany(User, { through: UserPlace, foreignKey: 'place_id' });
+  
 sequelize
 .authenticate()
 .then(() => {
@@ -130,4 +132,4 @@ sequelize
     console.log(`postgres unable to connect, ${err}`)
 })
 
-module.exports = { User, Business }
+module.exports = { User, Place, UserPlace };
